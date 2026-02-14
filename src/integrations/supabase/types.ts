@@ -20,6 +20,7 @@ export type Database = {
           category: string
           created_at: string
           id: string
+          is_whitelisted: boolean | null
           is_work_app: boolean | null
           package_name: string
           updated_at: string
@@ -29,6 +30,7 @@ export type Database = {
           category?: string
           created_at?: string
           id?: string
+          is_whitelisted?: boolean | null
           is_work_app?: boolean | null
           package_name: string
           updated_at?: string
@@ -38,6 +40,7 @@ export type Database = {
           category?: string
           created_at?: string
           id?: string
+          is_whitelisted?: boolean | null
           is_work_app?: boolean | null
           package_name?: string
           updated_at?: string
@@ -46,6 +49,7 @@ export type Database = {
       }
       app_distractions: {
         Row: {
+          ai_recommendation: string | null
           app_name: string
           created_at: string
           current_activity_description: string | null
@@ -54,11 +58,14 @@ export type Database = {
           id: string
           is_work_related: boolean | null
           package_name: string
+          reason: string | null
           session_id: string | null
+          severity: string | null
           started_at: string
           user_responded: boolean | null
         }
         Insert: {
+          ai_recommendation?: string | null
           app_name: string
           created_at?: string
           current_activity_description?: string | null
@@ -67,11 +74,14 @@ export type Database = {
           id?: string
           is_work_related?: boolean | null
           package_name: string
+          reason?: string | null
           session_id?: string | null
+          severity?: string | null
           started_at: string
           user_responded?: boolean | null
         }
         Update: {
+          ai_recommendation?: string | null
           app_name?: string
           created_at?: string
           current_activity_description?: string | null
@@ -80,7 +90,9 @@ export type Database = {
           id?: string
           is_work_related?: boolean | null
           package_name?: string
+          reason?: string | null
           session_id?: string | null
+          severity?: string | null
           started_at?: string
           user_responded?: boolean | null
         }
