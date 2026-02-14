@@ -1,11 +1,11 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.velthor.app',
-  appName: 'Time Guardian',
+  appId: 'app.lovable.b0feeaf118154c5c9f9fdbd480f63cdb',
+  appName: 'A Lovable project',
   webDir: 'dist',
   server: {
-    url: 'https://536bd3b8-baca-4546-b08e-4d0b2414a9b0.lovableproject.com?forceHideBadge=true',
+    url: 'https://b0feeaf1-1815-4c5c-9f9f-dbd480f63cdb.lovableproject.com?forceHideBadge=true',
     cleartext: true
   },
   plugins: {

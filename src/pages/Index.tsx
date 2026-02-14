@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Moon, Sun, Download, Upload, Trash2, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Moon, Sun, Download, Upload, Trash2, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Bell, BellOff } from 'lucide-react';
 import { format, addDays, subDays } from 'date-fns';
 import { useActivities } from '@/hooks/useActivities';
 import { useAppUsageMonitor } from '@/hooks/useAppUsageMonitor';
+import { usePersistentNotification } from '@/hooks/usePersistentNotification';
 import { ActivityInput } from '@/components/ActivityInput';
 import { ActivityTimeline } from '@/components/ActivityTimeline';
 import { TimeCharts } from '@/components/TimeCharts';
@@ -63,6 +64,32 @@ const Index = () => {
     pendingDistraction,
     respondToDistraction,
   } = useAppUsageMonitor(ongoingActivity?.description);
+
+  // Handle notification replies - process them as activity input
+  const handleNotificationReply = useCallback(async (text: string) => {
+    try {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase.functions.invoke('parse-activity', {
+        body: { message: text, hasOngoingActivity: !!ongoingActivity },
+      });
+      if (!error && data && !data.error) {
+        handleActivityParsed(data);
+      }
+    } catch (err) {
+      console.error('Error processing notification reply:', err);
+    }
+  }, [ongoingActivity]);
+
+  // Persistent notification for quick input
+  const {
+    isNative: isNativePlatform,
+    isActive: isNotificationActive,
+    startNotification,
+    stopNotification,
+  } = usePersistentNotification({
+    onReply: handleNotificationReply,
+    currentActivity: ongoingActivity?.description,
+  });
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark');
@@ -228,6 +255,16 @@ const Index = () => {
             </div>
             
             <div className="flex items-center gap-2">
+              {isNativePlatform && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={isNotificationActive ? stopNotification : startNotification}
+                  aria-label={isNotificationActive ? "Disable always-on input" : "Enable always-on input"}
+                >
+                  {isNotificationActive ? <BellOff className="h-5 w-5" aria-hidden="true" /> : <Bell className="h-5 w-5" aria-hidden="true" />}
+                </Button>
+              )}
               <Button variant="ghost" size="icon" onClick={exportData} aria-label="Export data">
                 <Download className="h-5 w-5" aria-hidden="true" />
               </Button>
