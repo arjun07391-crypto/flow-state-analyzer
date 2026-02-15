@@ -42,7 +42,8 @@ export const useActivities = (selectedDate?: string) => {
   const [allData, setAllData] = useState<DayData[]>(loadStoredData);
   const [isLoading, setIsLoading] = useState(false);
 
-  const today = selectedDate || getISTDate();
+  const today = getISTDate();
+  const activeDate = selectedDate || today;
 
   // Sync to localStorage whenever allData changes
   useEffect(() => {
@@ -51,7 +52,7 @@ export const useActivities = (selectedDate?: string) => {
   }, [allData]);
 
   // Get activities for the selected date
-  const todayData = allData.find(d => d.date === today);
+  const todayData = allData.find(d => d.date === activeDate);
   const activities = todayData?.activities || [];
 
   // Get ongoing activity
