@@ -332,7 +332,7 @@ const Index = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ActivityTimeline activities={activities} onDelete={deleteActivity} onUpdate={updateActivity} />
+                  <ActivityTimeline activities={activities} onDelete={deleteActivity} onUpdate={updateActivity} distractionHistory={distractionHistory} />
                 </CardContent>
               </Card>
 
