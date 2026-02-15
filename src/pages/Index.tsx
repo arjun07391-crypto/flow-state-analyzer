@@ -290,6 +290,7 @@ const Index = () => {
                     }}
                     modifiers={{ hasData: datesWithData.map(d => { const [y, m, dd] = d.split('-').map(Number); return new Date(y, m - 1, dd); }) }}
                     modifiersStyles={{ hasData: { fontWeight: 'bold', textDecoration: 'underline' } }}
+                    className="p-3 pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
