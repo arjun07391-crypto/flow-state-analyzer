@@ -33,7 +33,7 @@ export const AppSessionAnalysis: React.FC = () => {
     const entries = Object.entries(data).sort(([a], [b]) => a.localeCompare(b));
 
     if (entries.length === 0) {
-      return { chartData: [], avgDaily: 0, totalThisWeek: 0, totalLastWeek: 0, trend: 0, totalDays: 0 };
+      return { chartData: [], avgDaily: 0, totalAll: 0, totalThisWeek: 0, totalLastWeek: 0, trend: 0, totalDays: 0 };
     }
 
     // Last 14 days
@@ -64,7 +64,7 @@ export const AppSessionAnalysis: React.FC = () => {
       ? Math.round(((totalThisWeek - totalLastWeek) / totalLastWeek) * 100)
       : 0;
 
-    return { chartData, avgDaily, totalThisWeek, totalLastWeek, trend, totalDays: daysWithData };
+    return { chartData, avgDaily, totalAll, totalThisWeek, totalLastWeek, trend, totalDays: daysWithData };
   }, []);
 
   return (
@@ -77,7 +77,11 @@ export const AppSessionAnalysis: React.FC = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="text-center p-2 rounded-lg bg-muted/50">
+            <p className="text-xs text-muted-foreground">All Time</p>
+            <p className="text-sm font-bold text-foreground">{formatDuration(analysis.totalAll)}</p>
+          </div>
           <div className="text-center p-2 rounded-lg bg-muted/50">
             <p className="text-xs text-muted-foreground">Avg Daily</p>
             <p className="text-sm font-bold text-foreground">{formatDuration(analysis.avgDaily)}</p>
