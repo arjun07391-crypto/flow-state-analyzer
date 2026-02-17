@@ -1,99 +1,87 @@
 
 
-# AI-Powered Personal Time & Activity Tracker
+## Plan: Fix 4 Issues + Add Logging Time Analysis
 
-A private, intelligent time tracking app with **automatic timestamping** where you simply describe what you're doing, and AI provides comprehensive lifestyle analysis.
+### 1. Add "Time Spent Logging" Analysis
 
----
+Currently, `AppSessionTimer` just shows a raw number (e.g., "12m 34s"). We'll add an `AppSessionAnalysis` component in the Analysis tab that:
 
-## Core Features
+- Shows daily logging time trends (chart of how much time you spent in the app each day over the past week)
+- Calculates average daily logging time
+- Shows "most active logging hour" (when you tend to open the app most)
+- Compares current week vs previous week logging time
+- Uses data already stored in `localStorage` via `useAppSessionTime` hook
 
-### 1. Smart Activity Input
-- **Chat-style input box** - just type what you're doing
-- **Automatic IST timestamping** - time captured when you submit
-- Understands both styles:
-  - "started coding" → begins tracking, waits for stop
-  - "having dinner" → ends previous activity, starts new one
-  - "stopped working" → ends current activity
-- AI parses your natural language to understand intent
-
-### 2. AI-Powered Understanding & Categorization
-- Detects whether you're starting, stopping, or switching activities
-- Auto-categorizes into: **Work, Coding, Meetings, Meals, Exercise, Sleep, Leisure, Social, Commute, Personal Care**
-- Handles casual language: "grabbing food", "gym time", "netflix break", "crashed early"
-
-### 3. Live Activity Timeline
-- Visual timeline of your day, updating in real-time
-- Color-coded blocks by category
-- Auto-calculated durations
-- Quick edit/delete for corrections
+**Files:** New `src/components/AppSessionAnalysis.tsx`, modify `src/pages/Index.tsx` to add it to the Analysis tab.
 
 ---
 
-## Analysis Dashboard
+### 2. Fix Heatmap Issues
 
-### 4. Time Distribution Charts
-- **Pie chart**: Category breakdown
-- **Bar chart**: Productive vs. leisure comparison
-- **Hour-by-hour timeline**: Visual day overview
+The heatmap has two problems:
 
-### 5. Red Flags & Green Flags
-**Red Flags:**
-- Working 10+ hours
-- Skipping/late meals
-- No exercise
-- Working past midnight
-- Excessive context switching
-- No breaks in long sessions
-- No leisure/social time
+- **Daily heatmap**: The `hourStart`/`hourEnd` dates are constructed from the activity's start time instead of the selected date, causing incorrect hour buckets when activities span midnight or are on different dates
+- **Weekly heatmap**: Same date construction bug — uses `dayDate` correctly but the overlap calculation can fail for activities that span multiple days
 
-**Green Flags:**
-- Consistent meal times
-- Regular breaks
-- Exercise included
-- Deep focus blocks (2+ hours)
-- Reasonable work hours
-- Balanced leisure
-- Healthy end-of-day time
+**Fix:** Construct `hourStart`/`hourEnd` using the correct target date (from `selectedDate` for daily, from `dayDate` for weekly), ensuring the year/month/day components are correct.
 
-### 6. AI Daily Summary
-- Personalized written analysis
-- Actionable recommendations
-- Pattern recognition
-- Gentle improvement suggestions
+**Files:** Modify `src/components/ProductivityHeatmap.tsx`
 
 ---
 
-## History & Trends
+### 3. Fix Dark Mode Not Persisting
 
-### 7. Multi-Day Tracking
-- Calendar view to browse history
-- Weekly aggregated stats
-- Month comparisons
+Currently dark mode state is initialized by checking if `dark` class exists on `<html>`, but nothing saves the preference. When you close the app, it resets.
 
-### 8. Trend Graphs
-- Work hours over time
-- Sleep patterns
-- Exercise frequency
-- Category trends
-- Recurring pattern detection
+**Fix:** Save dark mode preference to `localStorage` on toggle, and read it on initialization.
+
+**Files:** Modify `src/pages/Index.tsx` — update `isDark` state initialization and the toggle effect.
 
 ---
 
-## Privacy (100% Local)
+### 4. Optimize UI for Installed App (Mobile APK)
 
-- **All data in browser localStorage** - nothing external
-- No login/account needed
-- Export data as JSON backup
-- Clear all data option
-- AI used only for parsing (not stored)
+The current layout isn't optimized for mobile app viewport. Issues include:
+
+- Header buttons too close together on small screens
+- Tab list may overflow
+- Cards in the grid don't stack properly on narrow screens
+- Heatmap cells too small and overflow horizontally
+- Date navigation buttons cramped
+
+**Fixes:**
+- Add proper mobile-first responsive classes
+- Make header icons wrap or use a dropdown menu on small screens
+- Ensure single-column layout on mobile for all cards
+- Add `viewport` meta tag optimization for installed app
+- Add touch-friendly tap targets (min 44px)
+- Reduce padding/margins on mobile
+- Make heatmap cells responsive
+
+**Files:** Modify `src/pages/Index.tsx`, `src/components/ProductivityHeatmap.tsx`, `src/index.css`, `index.html`
 
 ---
 
-## Design
-- Clean, minimal interface
-- Dark mode support
-- Mobile-responsive
-- Quick-add floating button
-- Smooth chart animations
+### 5. About the Accessibility Service (Native Code)
+
+The native Android code (Java files for Accessibility Service, AppUsage Plugin, Persistent Notification Plugin) **cannot be created by me directly** — the `android/` folder only exists on your local machine after running `npx cap add android`.
+
+The complete guide is already in `docs/NATIVE_INTEGRATION_GUIDE.md` with copy-paste-ready code. You need to:
+1. Open the Android project in Android Studio
+2. Create the Java files in the correct package directory
+3. Update `AndroidManifest.xml` and `strings.xml`
+4. Register plugins in `MainActivity.java`
+
+This is the only way — there is no workaround for native platform code.
+
+---
+
+### Technical Summary
+
+| Change | File(s) | Type |
+|--------|---------|------|
+| Logging time analysis | New `AppSessionAnalysis.tsx`, `Index.tsx` | New component |
+| Heatmap fix | `ProductivityHeatmap.tsx` | Bug fix |
+| Dark mode persistence | `Index.tsx` | Bug fix |
+| Mobile UI optimization | `Index.tsx`, `ProductivityHeatmap.tsx`, `index.css`, `index.html` | Enhancement |
 
