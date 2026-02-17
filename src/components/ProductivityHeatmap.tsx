@@ -39,11 +39,10 @@ export const ProductivityHeatmap: React.FC<ProductivityHeatmapProps> = ({
         const start = new Date(a.startTime);
         const end = a.endTime ? new Date(a.endTime) : new Date();
         
-        // Check overlap with this hour
-        const hourStart = new Date(start);
-        hourStart.setHours(hour, 0, 0, 0);
-        const hourEnd = new Date(start);
-        hourEnd.setHours(hour + 1, 0, 0, 0);
+        // Use selectedDate for hour boundaries, not activity start
+        const [sy, sm, sd] = selectedDate.split('-').map(Number);
+        const hourStart = new Date(sy, sm - 1, sd, hour, 0, 0, 0);
+        const hourEnd = new Date(sy, sm - 1, sd, hour + 1, 0, 0, 0);
 
         const overlapStart = Math.max(start.getTime(), hourStart.getTime());
         const overlapEnd = Math.min(end.getTime(), hourEnd.getTime());
@@ -169,11 +168,11 @@ export const ProductivityHeatmap: React.FC<ProductivityHeatmapProps> = ({
             {dailyData.map(cell => (
               <Tooltip key={cell.hour}>
                 <TooltipTrigger asChild>
-                  <div className="flex flex-col items-center gap-1 min-w-[2rem]">
+                  <div className="flex flex-col items-center gap-1 min-w-[1.5rem] sm:min-w-[2rem]">
                     <div
-                      className={`w-7 h-7 rounded-sm ${getCellColor(cell.productivity, cell.distraction)} transition-colors`}
+                      className={`w-5 h-5 sm:w-7 sm:h-7 rounded-sm ${getCellColor(cell.productivity, cell.distraction)} transition-colors`}
                     />
-                    <span className="text-[10px] text-muted-foreground">{cell.hour}</span>
+                    <span className="text-[8px] sm:text-[10px] text-muted-foreground">{cell.hour}</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -186,7 +185,7 @@ export const ProductivityHeatmap: React.FC<ProductivityHeatmapProps> = ({
             ))}
           </div>
           {/* Legend */}
-          <div className="flex gap-3 mt-3 text-xs text-muted-foreground">
+          <div className="flex flex-wrap gap-2 sm:gap-3 mt-3 text-xs text-muted-foreground">
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-sm bg-chart-1/80" /> High work</div>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-sm bg-chart-1/40" /> Moderate</div>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-sm bg-chart-5/60" /> Distracted</div>
@@ -205,11 +204,11 @@ export const ProductivityHeatmap: React.FC<ProductivityHeatmapProps> = ({
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
-          <div className="min-w-[500px]">
+          <div className="min-w-[400px]">
             {/* Hour labels */}
             <div className="flex gap-[2px] mb-1 ml-10">
               {HOURS.map(h => (
-                <div key={h} className="w-6 text-center text-[9px] text-muted-foreground">{h}</div>
+                <div key={h} className="w-5 sm:w-6 text-center text-[8px] sm:text-[9px] text-muted-foreground">{h}</div>
               ))}
             </div>
             {/* Grid */}
@@ -219,7 +218,7 @@ export const ProductivityHeatmap: React.FC<ProductivityHeatmapProps> = ({
                 {row.hours.map(cell => (
                   <Tooltip key={cell.hour}>
                     <TooltipTrigger asChild>
-                      <div className={`w-6 h-6 rounded-sm ${getCellColor(cell.productivity, cell.distraction)} transition-colors cursor-default`} />
+                      <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-sm ${getCellColor(cell.productivity, cell.distraction)} transition-colors cursor-default`} />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="font-medium">{row.day} {cell.hour}:00–{cell.hour + 1}:00</p>
@@ -232,7 +231,7 @@ export const ProductivityHeatmap: React.FC<ProductivityHeatmapProps> = ({
           </div>
         </div>
         {/* Legend */}
-        <div className="flex gap-3 mt-3 text-xs text-muted-foreground">
+        <div className="flex flex-wrap gap-2 sm:gap-3 mt-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-sm bg-chart-1/80" /> High work</div>
           <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-sm bg-chart-1/40" /> Moderate</div>
           <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-sm bg-chart-5/60" /> Distracted</div>

@@ -15,6 +15,7 @@ import { AppSessionTimer } from '@/components/AppSessionTimer';
 import { WeeklyAnalysis } from '@/components/WeeklyAnalysis';
 import { MonthlyAnalysis } from '@/components/MonthlyAnalysis';
 import { ProductivityHeatmap } from '@/components/ProductivityHeatmap';
+import { AppSessionAnalysis } from '@/components/AppSessionAnalysis';
 import { SessionIntegrity } from '@/components/SessionIntegrity';
 import { WhitelistApps } from '@/components/WhitelistApps';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,12 @@ import { cn } from '@/lib/utils';
 const Index = () => {
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme-dark');
+      if (saved !== null) {
+        const dark = saved === 'true';
+        document.documentElement.classList.toggle('dark', dark);
+        return dark;
+      }
       return document.documentElement.classList.contains('dark');
     }
     return false;
@@ -97,11 +104,8 @@ const Index = () => {
   });
 
   useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.toggle('dark', isDark);
+    localStorage.setItem('theme-dark', String(isDark));
   }, [isDark]);
 
   const checkForGap = (newStartTime: string): { startTime: string; endTime: string; durationMinutes: number } | null => {
@@ -213,23 +217,23 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Time Tracker</h1>
-              <p className="text-sm text-muted-foreground">AI-powered personal activity tracking</p>
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate">Time Tracker</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">AI-powered personal activity tracking</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               {isNativePlatform && (
-                <Button variant="ghost" size="icon" onClick={isNotificationActive ? stopNotification : startNotification}>
+                <Button variant="ghost" size="icon" className="h-10 w-10" onClick={isNotificationActive ? stopNotification : startNotification}>
                   {isNotificationActive ? <BellOff className="h-5 w-5" /> : <Bell className="h-5 w-5" />}
                 </Button>
               )}
-              <Button variant="ghost" size="icon" onClick={exportData}><Download className="h-5 w-5" /></Button>
-              <Button variant="ghost" size="icon" onClick={handleImport}><Upload className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" className="h-10 w-10" onClick={exportData}><Download className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" className="h-10 w-10" onClick={handleImport}><Upload className="h-5 w-5" /></Button>
               <Dialog open={showClearDialog} onOpenChange={setShowClearDialog}>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon"><Trash2 className="h-5 w-5" /></Button>
+                  <Button variant="ghost" size="icon" className="h-10 w-10"><Trash2 className="h-5 w-5" /></Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -242,7 +246,7 @@ const Index = () => {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-              <Button variant="ghost" size="icon" onClick={() => setIsDark(!isDark)}>
+              <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => setIsDark(!isDark)}>
                 {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
             </div>
@@ -250,13 +254,13 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* Main Tabs */}
-        <Tabs defaultValue="today" className="space-y-6">
-          <TabsList className="w-full justify-start">
-            <TabsTrigger value="today">Today</TabsTrigger>
-            <TabsTrigger value="analysis">Analysis</TabsTrigger>
-            <TabsTrigger value="apps">Apps</TabsTrigger>
+        <Tabs defaultValue="today" className="space-y-4 sm:space-y-6">
+          <TabsList className="w-full justify-start overflow-x-auto">
+            <TabsTrigger value="today" className="min-h-[44px]">Today</TabsTrigger>
+            <TabsTrigger value="analysis" className="min-h-[44px]">Analysis</TabsTrigger>
+            <TabsTrigger value="apps" className="min-h-[44px]">Apps</TabsTrigger>
           </TabsList>
 
           {/* ===== TODAY TAB ===== */}
@@ -321,7 +325,7 @@ const Index = () => {
             <GapDetectionDialog open={showGapDialog} onOpenChange={setShowGapDialog} gap={pendingGap} onFillGap={handleFillGap} onSkip={handleSkipGap} />
             <DistractionPrompt distraction={pendingDistraction} onRespond={handleDistractionRespond} />
 
-            <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
               <Card className="lg:row-span-2">
                 <CardHeader>
                   <CardTitle className="text-lg">
@@ -347,14 +351,15 @@ const Index = () => {
           {/* ===== ANALYSIS TAB ===== */}
           <TabsContent value="analysis" className="space-y-6">
             <Tabs defaultValue="weekly">
-              <TabsList>
+              <TabsList className="flex flex-wrap gap-1">
                 <TabsTrigger value="weekly">Weekly</TabsTrigger>
                 <TabsTrigger value="monthly">Monthly</TabsTrigger>
                 <TabsTrigger value="heatmap">Heatmap</TabsTrigger>
+                <TabsTrigger value="logging">Logging Time</TabsTrigger>
               </TabsList>
 
               <TabsContent value="weekly" className="space-y-4 mt-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Button variant="outline" size="sm" onClick={() => setWeekOffset(w => w + 1)}>← Previous</Button>
                   <Button variant="outline" size="sm" onClick={() => setWeekOffset(0)} disabled={weekOffset === 0}>Current</Button>
                   <Button variant="outline" size="sm" onClick={() => setWeekOffset(w => Math.max(0, w - 1))} disabled={weekOffset === 0}>Next →</Button>
@@ -364,7 +369,7 @@ const Index = () => {
               </TabsContent>
 
               <TabsContent value="monthly" className="space-y-4 mt-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Button variant="outline" size="sm" onClick={() => setMonthOffset(m => m + 1)}>← Previous</Button>
                   <Button variant="outline" size="sm" onClick={() => setMonthOffset(0)} disabled={monthOffset === 0}>Current</Button>
                   <Button variant="outline" size="sm" onClick={() => setMonthOffset(m => Math.max(0, m - 1))} disabled={monthOffset === 0}>Next →</Button>
@@ -374,6 +379,10 @@ const Index = () => {
 
               <TabsContent value="heatmap" className="mt-4">
                 <ProductivityHeatmap allData={allData} distractionHistory={distractionHistory} selectedDate={selectedDate} mode="weekly" />
+              </TabsContent>
+
+              <TabsContent value="logging" className="mt-4">
+                <AppSessionAnalysis />
               </TabsContent>
             </Tabs>
           </TabsContent>
