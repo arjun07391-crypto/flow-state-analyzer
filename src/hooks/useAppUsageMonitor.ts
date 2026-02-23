@@ -23,8 +23,31 @@ export interface AppCategory {
   isWorkApp: boolean;
 }
 
+// System/keyboard packages to always ignore
+const IGNORED_PACKAGES = [
+  'com.android.systemui',
+  'com.google.android.inputmethod',
+  'com.samsung.android.honeyboard',
+  'com.swiftkey',
+  'com.touchtype.swiftkey',
+  'com.android.inputmethod',
+  'com.sec.android.inputmethod',
+  'com.google.android.apps.nexuslauncher',
+  'com.samsung.android.app.launcher',
+  'com.android.launcher',
+  'com.sec.android.app.launcher',
+  'android',
+  'com.android.settings',
+  'statusbar',
+];
+
+function isIgnoredPackage(pkg: string): boolean {
+  return IGNORED_PACKAGES.some(ignored => pkg.toLowerCase().includes(ignored.toLowerCase()));
+}
+
 export function useAppUsageMonitor(currentActivityDescription?: string) {
   const [isMonitoring, setIsMonitoring] = useState(false);
+  const lastLoggedAppRef = { current: '' };
   const [hasPermission, setHasPermission] = useState(false);
   const [pendingDistraction, setPendingDistraction] = useState<DistractionEvent | null>(null);
   const [distractionHistory, setDistractionHistory] = useState<DistractionEvent[]>([]);
@@ -142,10 +165,21 @@ export function useAppUsageMonitor(currentActivityDescription?: string) {
     timestamp: number;
     isDistraction: boolean;
   }) => {
-    if (!event.isDistraction) return;
-    
+    // Ignore system UI, keyboards, launchers
+    if (isIgnoredPackage(event.toApp) || isIgnoredPackage(event.fromApp)) return;
+
+    const isOurApp = event.toApp.includes('lovable') || event.toApp.includes('b0feeaf1') || event.toApp.includes('time-guardian');
+
     // Check if returning to our app after being in a distraction app
-    const isReturning = event.toApp.includes('time-guardian') || event.toApp.includes('lovable');
+    const isReturning = isOurApp;
+
+    // Deduplicate: only process if the app actually changed (skip for our own app returning)
+    if (!isOurApp) {
+      if (event.toApp === lastLoggedAppRef.current) return;
+      lastLoggedAppRef.current = event.toApp;
+    }
+
+    if (!event.isDistraction && !isReturning) return;
     
     if (isReturning && pendingDistraction) {
       // User is back - calculate duration and show prompt
